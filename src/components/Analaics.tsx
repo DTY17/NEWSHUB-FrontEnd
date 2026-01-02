@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { samplePosts } from "../data/data";
 import { getPostCount, getViewCount } from "../services/post";
-import { View } from "lucide-react";
 
 // const numberFormat = (n: number) => n.toLocaleString();
 
@@ -20,7 +19,7 @@ export const AdminAnalytics: React.FC = () => {
 
   useEffect(() => {
     async function getCount() {
-      console.log("getCount");
+      console.log(avgViews);
       setTotalPost(
         await getPostCount(localStorage.getItem("admin_token") as string)
       );

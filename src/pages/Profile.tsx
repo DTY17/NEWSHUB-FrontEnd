@@ -36,6 +36,7 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
   useEffect(() => {
     async function loadData() {
       console.log("Emails :: ",email)
+      console.log(image_icon)
       const data = await getUser(email as string , localStorage.getItem("token") as string);
       console.log("data recived",data)
       const profile_data = {

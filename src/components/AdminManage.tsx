@@ -44,6 +44,7 @@ export const AdminManage: React.FC = () => {
 
   useEffect(() => {
     async function fetchPosts() {
+      setPosts(samplePosts)
       const res = await getPost();
       setFilteredPosts(res);
     }

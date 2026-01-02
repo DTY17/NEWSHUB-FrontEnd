@@ -51,6 +51,7 @@ export const Header: FC<Props> = ({
 
   useEffect(() => {
     async function getEmail() {
+      
       const email = localStorage.getItem("email");
       const token = localStorage.getItem("token");
       const refresh_token = localStorage.getItem("refresh_token");
@@ -102,7 +103,7 @@ export const Header: FC<Props> = ({
         localStorage.removeItem("refresh_token");
       }
     }
-
+    console.log(email)
     getEmail();
   }, []); // Empty dependency array - runs only on mount
 
