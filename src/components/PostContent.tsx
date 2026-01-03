@@ -50,9 +50,11 @@ export interface IComment {
 interface Props {
   showLoginModal: boolean;
   setShowLoginModal: (p: boolean) => void;
+  setIsLoggedIn: (p: boolean) => void;
+  isLoggedIn: boolean;
 }
 
-const PostPage = ({ setShowLoginModal }: Props) => {
+const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => {
   const { _id } = useParams();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post | null>(null);
@@ -60,7 +62,6 @@ const PostPage = ({ setShowLoginModal }: Props) => {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentData, setCommentData] = useState<string>("");
   const [reload, setReload] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
 
   // Check authentication status
@@ -118,16 +119,6 @@ const PostPage = ({ setShowLoginModal }: Props) => {
         // Fetch comments if post has comments
         if (result?.comment && result.comment.length > 0) {
           loadComment(result)
-          // try {
-          //   const commentsData = await getCommetByAllIDS(
-          //     localStorage.getItem("token") as string,
-          //     result.comment
-          //   );
-          //   setComments(commentsData || []);
-          // } catch (commentError) {
-          //   console.error("Failed to fetch comments:", commentError);
-          //   setComments([]);
-          // }
         } else {
           setComments([]);
         }
