@@ -310,11 +310,11 @@ export const HomePage: React.FC<Props> = ({
                 ))}
               </div>
 
-              <div className="mt-12 text-center">
+              {/* <div className="mt-12 text-center">
                 <button className="px-10 py-4 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold uppercase tracking-wide rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                   Load More Articles
                 </button>
-              </div>
+              </div> */}
             </main>
           </div>
         </div>
