@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { mostview, popular, recent } from "../services/post";
+import { Link } from "react-router-dom";
 
 const genres = [
   "Technology",
@@ -61,7 +62,7 @@ export const HomePage: React.FC<Props> = ({
   useEffect(() => {
     async function fetchPosts() {
       try {
-        setLoading(true)
+        setLoading(true);
         if (filter === "popular") {
           const p = await popular(selectedGenre);
           setFilteredPosts(p);
@@ -74,10 +75,10 @@ export const HomePage: React.FC<Props> = ({
         }
       } catch (err: any) {
         //code
-        console.log(err)
+        console.log(err);
       } finally {
         // code
-        setLoading(false)
+        setLoading(false);
       }
     }
     fetchPosts();
@@ -87,7 +88,11 @@ export const HomePage: React.FC<Props> = ({
     <div className="w-full px-4 py-8 bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 min-h-screen">
       {loading ? (
         <div className="flex items-center justify-center min-h-[500px]">
-          <img src="https://res.cloudinary.com/dxxn3lxqw/image/upload/v1767445064/tenor_opbpzk.gif" alt="Loading..." className="h-fit w-fit" />
+          <img
+            src="https://res.cloudinary.com/dxxn3lxqw/image/upload/v1767445064/tenor_opbpzk.gif"
+            alt="Loading..."
+            className="h-fit w-fit"
+          />
         </div>
       ) : (
         <div className="max-w-[1600px] mx-auto">
@@ -181,9 +186,9 @@ export const HomePage: React.FC<Props> = ({
                 </h3>
                 <div className="space-y-4">
                   {popularPost.map((p, idx) => (
-                    <a
+                    <Link
                       key={p._id}
-                      href="#"
+                      to={`/home/post/${p._id}`}
                       className="flex space-x-3 pb-4 border-b border-gray-700 last:border-0 group"
                     >
                       <div className="relative shrink-0">
@@ -214,7 +219,7 @@ export const HomePage: React.FC<Props> = ({
                           </span>
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -246,56 +251,62 @@ export const HomePage: React.FC<Props> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredPosts.map((p) => (
-                  <div
+                  <Link
                     key={p._id}
-                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-gray-100"
+                    to={`/home/post/${p._id}`}
+                    className="group"
                   >
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={p.image[0]}
-                        alt={p.topic}
-                        className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-3 right-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg">
-                        {p.genre[0]}
+                    <div
+                      key={p._id}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-gray-100"
+                    >
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={p.image[0]}
+                          alt={p.topic}
+                          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 right-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg">
+                          {p.genre[0]}
+                        </div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-60"></div>
                       </div>
-                      <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-60"></div>
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-3 text-xs text-gray-500">
+                          <span className="flex items-center font-medium">
+                            <Clock size={14} className="mr-1 text-blue-600" />
+                            {new Date(p.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                          <span className="flex items-center font-medium">
+                            <Eye size={14} className="mr-1 text-blue-600" />
+                            {p.views.toLocaleString()}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
+                          {p.topic}
+                        </h3>
+                        <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
+                          {p.paragraph[0]}
+                        </p>
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <button className="text-blue-600 font-bold text-sm flex items-center group/btn hover:text-blue-700 transition-colors">
+                            Read More
+                            <ArrowRight
+                              size={16}
+                              className="ml-2 group-hover/btn:translate-x-1 transition-transform"
+                            />
+                          </button>
+                          <button className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg">
+                            <Bookmark size={18} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-3 text-xs text-gray-500">
-                        <span className="flex items-center font-medium">
-                          <Clock size={14} className="mr-1 text-blue-600" />
-                          {new Date(p.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <span className="flex items-center font-medium">
-                          <Eye size={14} className="mr-1 text-blue-600" />
-                          {p.views.toLocaleString()}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
-                        {p.topic}
-                      </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
-                        {p.paragraph[0]}
-                      </p>
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <button className="text-blue-600 font-bold text-sm flex items-center group/btn hover:text-blue-700 transition-colors">
-                          Read More
-                          <ArrowRight
-                            size={16}
-                            className="ml-2 group-hover/btn:translate-x-1 transition-transform"
-                          />
-                        </button>
-                        <button className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg">
-                          <Bookmark size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 

@@ -30,7 +30,7 @@ export const Header: FC<Props> = ({
   setDP,
   dp,
   showLoginModal,
-  setShowLoginModal
+  setShowLoginModal,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -53,63 +53,60 @@ export const Header: FC<Props> = ({
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  useEffect(() => {
-    async function getEmail() {
-      
-      const email = localStorage.getItem("email");
-      const token = localStorage.getItem("token");
-      const refresh_token = localStorage.getItem("refresh_token");
+  async function getEmail() {
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+    const refresh_token = localStorage.getItem("refresh_token");
 
-      // If no tokens or email in localStorage, set not logged in
-      if (!email || !token || !refresh_token) {
-        setIsLoggedIn(false);
-        setShowDropdown(false);
-        return;
-      }
+    if (!email || !token || !refresh_token) {
+      setIsLoggedIn(false);
+      setShowDropdown(false);
+      return;
+    }
 
-      try {
-        // Check token validity
-        const isValid = await isTokenValid(token, refresh_token);
-        console.log("isValid:", isValid);
+    try {
+      const isValid = await isTokenValid(token, refresh_token);
+      console.log("isValid:", isValid);
 
-        if (!isValid) {
-          // Token is invalid, clear localStorage and set logged out
-          setIsLoggedIn(false);
-          setShowDropdown(false);
-          localStorage.removeItem("email");
-          localStorage.removeItem("token");
-          localStorage.removeItem("refresh_token");
-          return;
-        }
-
-        // Token is valid, get user data
-        const data = await getUser(email, token);
-        
-        if (data.image) {
-          setDP(data.image);
-        } else {
-          setDP("");
-        }
-
-        // Set logged in state
-        setIsLoggedIn(true);
-        setShowLoginModal(false);
-        
-        // Set email state
-        setEmail(email);
-      } catch (error) {
-        console.error("Error validating token or getting user:", error);
-        // On error, clear localStorage and set logged out
+      if (!isValid) {
         setIsLoggedIn(false);
         setShowDropdown(false);
         localStorage.removeItem("email");
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
+        return;
       }
+
+      const data = await getUser(email, token);
+
+      if (data.image) {
+        setDP(data.image);
+      } else {
+        setDP("");
+      }
+
+      setIsLoggedIn(true);
+      setShowLoginModal(false);
+
+      setEmail(email);
+    } catch (error) {
+      console.error("Error validating token or getting user:", error);
+      setIsLoggedIn(false);
+      setShowDropdown(false);
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
     }
-    console.log(email)
+  }
+  useEffect(() => {
+    console.log(email);
     getEmail();
-  }, []); // Empty dependency array - runs only on mount
+  }, []);
+
+  useEffect(() => {
+    console.log(email);
+    getEmail();
+  }, [isLoggedIn]);
 
   function goToProfile() {
     console.log("Go to Profile");
@@ -130,9 +127,9 @@ export const Header: FC<Props> = ({
         email: loginEmail.trim(),
         password: loginPassword.trim(),
       });
-      
+
       console.log("Login result:", result);
-      
+
       // Assuming result has properties: email, token, refresh_token
       if (result.token && result.refresh_token) {
         setIsLoggedIn(true);
@@ -141,7 +138,7 @@ export const Header: FC<Props> = ({
         localStorage.setItem("email", result.email);
         localStorage.setItem("token", result.token);
         localStorage.setItem("refresh_token", result.refresh_token);
-        
+
         // Clear form fields
         setLoginEmail("");
         setLoginPassword("");
@@ -199,19 +196,19 @@ export const Header: FC<Props> = ({
         email: signupEmail.trim(),
         password: signupPassword.trim(),
       });
-      
+
       // Assuming register returns true on success
       if (result === true) {
         // After successful signup, you might want to automatically log the user in
         // or redirect to login. For now, just close the modal and clear form
         setShowSignupModal(false);
-        
+
         // Clear form fields
         setFirstName("");
         setLastName("");
         setSignupEmail("");
         setSignupPassword("");
-        
+
         // Optionally show login modal after successful signup
         setShowLoginModal(true);
       } else {
@@ -219,7 +216,9 @@ export const Header: FC<Props> = ({
       }
     } catch (err) {
       console.error("Signup error:", err);
-      setSignupError("An error occurred during registration. Please try again.");
+      setSignupError(
+        "An error occurred during registration. Please try again."
+      );
     }
   };
 

@@ -95,6 +95,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
 
   const loadComment = async (result: any) => {
     try {
+      if (!isLoggedIn) return;
       const commentsData = await getCommetByAllIDS(
         localStorage.getItem("token") as string,
         result.comment
