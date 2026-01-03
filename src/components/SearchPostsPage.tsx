@@ -27,7 +27,6 @@ type Post = {
 };
 
 type SearchPostsPageProps = {
-  setLoading: React.Dispatch<React.SetStateAction<Boolean>>;
   loading: boolean;
   posts: Post[];
   searchPageQuery: string;
