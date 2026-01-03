@@ -1,5 +1,14 @@
 import { useCallback } from "react";
-import { ArrowRight, Bookmark, ChevronLeft, ChevronRight, Clock, Eye, Filter, Search } from "lucide-react";
+import {
+  ArrowRight,
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Eye,
+  Filter,
+  Search,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 type Post = {
@@ -18,6 +27,8 @@ type Post = {
 };
 
 type SearchPostsPageProps = {
+  setLoading: React.Dispatch<React.SetStateAction<Boolean>>;
+  loading: boolean;
   posts: Post[];
   searchPageQuery: string;
   setSearchPageQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -31,6 +42,7 @@ type SearchPostsPageProps = {
 };
 
 const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
+  loading,
   posts,
   searchPageQuery,
   setSearchPageQuery,
@@ -42,7 +54,6 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
   searchDataFun,
   genres,
 }) => {
-
   const filterSearchPosts = useCallback(() => {
     if (!Array.isArray(posts)) return [];
 
@@ -60,7 +71,10 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
   }, [posts, searchPageGenre]);
 
   const filteredPosts = filterSearchPosts();
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / postsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredPosts.length / postsPerPage)
+  );
   const startIndex = (currentSearchPage - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
   const currentPosts = filteredPosts.slice(startIndex, endIndex);
@@ -68,7 +82,6 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
   return (
     <div className="w-full px-4 py-8 bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 min-h-screen">
       <div className="max-w-[1600px] mx-auto">
-
         <div className="bg-white rounded-xl shadow-md p-8 mb-8 border-l-4 border-blue-600">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -104,7 +117,10 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
                   }}
                   className="w-full pl-11 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 text-gray-800 placeholder-gray-400 transition-all duration-200"
                 />
-                <Search className="absolute left-3.5 top-3.5 text-gray-400" size={20} />
+                <Search
+                  className="absolute left-3.5 top-3.5 text-gray-400"
+                  size={20}
+                />
               </div>
             </div>
 
@@ -128,7 +144,10 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
                   ))}
                 </select>
 
-                <Filter className="absolute left-3.5 top-3.5 text-gray-400 pointer-events-none" size={20} />
+                <Filter
+                  className="absolute left-3.5 top-3.5 text-gray-400 pointer-events-none"
+                  size={20}
+                />
                 <ChevronRight
                   className="absolute right-3 top-3.5 text-gray-400 pointer-events-none rotate-90"
                   size={20}
@@ -155,8 +174,15 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
             </div>
           </div>
         </div>
-
-        {filteredPosts.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[500px]">
+            <img
+              src="/public/tenor.gif"
+              alt="Loading..."
+              className="h-fit w-fit"
+            />
+          </div>
+        ) : filteredPosts.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-16 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Search size={48} className="text-gray-300" />
@@ -185,9 +211,12 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {currentPosts.map((post) => (
-                <Link  key={post._id} to={`/home/post/${post._id}`} className="group">
+                <Link
+                  key={post._id}
+                  to={`/home/post/${post._id}`}
+                  className="group"
+                >
                   <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-100 h-full flex flex-col">
-
                     <div className="relative overflow-hidden">
                       <img
                         src={post.image?.[0] || ""}
@@ -245,7 +274,6 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
                         </button>
                       </div>
                     </div>
-
                   </div>
                 </Link>
               ))}

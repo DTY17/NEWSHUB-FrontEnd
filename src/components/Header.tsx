@@ -18,6 +18,8 @@ interface Props {
   setIsLoggedIn: (v: boolean) => void;
   setDP: (p: string) => void;
   dp: string;
+  showLoginModal: boolean;
+  setShowLoginModal: (p: boolean) => void;
 }
 
 export const Header: FC<Props> = ({
@@ -27,10 +29,12 @@ export const Header: FC<Props> = ({
   setIsLoggedIn,
   setDP,
   dp,
+  showLoginModal,
+  setShowLoginModal
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  //const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");

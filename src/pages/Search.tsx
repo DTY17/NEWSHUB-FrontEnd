@@ -41,13 +41,14 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   const [searchPageGenre, setSearchPageGenre] = useState<string>("All");
   const [currentSearchPage, setCurrentSearchPage] = useState<number>(1);
   const postsPerPage = 9;
-
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading,setLoading] = useState<boolean>(false)
 
   useEffect(() => {
     let mounted = true;
     async function fetchPosts() {
       try {
+        setLoading(true)
         const data = await getSearch(
           searchPageQuery,
           searchPageGenre,
@@ -60,6 +61,8 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
       } catch (err) {
         console.error("fetchPosts error:", err);
         setPosts([]);
+      } finally {
+        setLoading(false)
       }
     }
     void fetchPosts();
@@ -71,6 +74,7 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   const searchDataFun = useCallback(
     async (inp: string) => {
       try {
+        setLoading(true)
         const data = await getSearch(
           inp,
           searchPageGenre,
@@ -82,6 +86,8 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
       } catch (err) {
         console.error("searchDataFun error:", err);
         setPosts([]);
+      } finally {
+        setLoading(false)
       }
     },
     [searchPageGenre, currentSearchPage]
@@ -90,6 +96,7 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
       <SearchPostsPage
+        loading = {loading}
         posts={posts}
         searchPageQuery={searchPageQuery}
         setSearchPageQuery={setSearchPageQuery}

@@ -24,6 +24,7 @@ const Router = () => {
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dp , setDP] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const navigation = useNavigate();
 
@@ -47,6 +48,8 @@ const Router = () => {
                 setIsLoggedIn={setIsLoggedIn}
                 setDP = {setDP}
                 dp = {dp}
+                showLoginModal = {showLoginModal}
+                setShowLoginModal = {setShowLoginModal}
               />
               <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
                 <Outlet/>
@@ -70,7 +73,8 @@ const Router = () => {
               </>
             }
           />
-          <Route path="post/:_id" element={<PostPage />} />
+          <Route path="post/:_id" element={<PostPage showLoginModal = {showLoginModal}
+                setShowLoginModal = {setShowLoginModal}/>} />
           <Route
             path="search"
             element={<SearchData searchData={searchQuery} />}

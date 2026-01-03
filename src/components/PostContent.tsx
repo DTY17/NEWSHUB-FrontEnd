@@ -6,9 +6,10 @@ import {
   Share2,
   Bookmark,
   ArrowLeft,
+  LogIn,
 } from "lucide-react";
 import { getCommetByAllIDS, getPostID, setComment } from "../services/post";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface Comment {
   createdAt: string | number | Date;
@@ -46,51 +47,101 @@ export interface IComment {
   createdAt: string;
 }
 
-const PostPage = () => {
+interface Props {
+  showLoginModal: boolean;
+  setShowLoginModal: (p: boolean) => void;
+}
+
+const PostPage = ({ setShowLoginModal }: Props) => {
   const { _id } = useParams();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post | null>(null);
   const [loading, setLoading] = useState(false);
-  const [comment, setComments] = useState<[Comment] | null>(null);
-  const [comment_data, setComment_data] = useState<string>("");
+  const [comments, setComments] = useState<Comment[] | null>(null);
+  const [commentData, setCommentData] = useState<string>("");
   const [reload, setReload] = useState(false);
-  const [allowComment, setAllowComment] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [commentLoading, setCommentLoading] = useState(false);
 
-  const sendComment = () => {
-    setComment(
-      _id as string,
-      localStorage.getItem("email") as string,
-      comment_data,
-      localStorage.getItem("token") as string
-    );
-    setReload(true);
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleSendComment = async () => {
+    if (!commentData.trim()) return;
+
+    try {
+      setCommentLoading(true);
+      await setComment(
+        _id as string,
+        localStorage.getItem("email") as string,
+        commentData.trim(),
+        localStorage.getItem("token") as string
+      );
+      setCommentData("");
+      setReload((prev) => !prev);
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleLoginRedirect = () => {
+    setShowLoginModal(true);
+  };
+
+  const loadComment = async (result: any) => {
+    try {
+      const commentsData = await getCommetByAllIDS(
+        localStorage.getItem("token") as string,
+        result.comment
+      );
+      setComments(commentsData || []);
+    } catch (commentError) {
+      console.error("Failed to fetch comments:", commentError);
+      setComments([]);
+    }
   };
 
   useEffect(() => {
     async function fetchPost() {
-      const result = await getPostID(
-        _id as string,
-        localStorage.getItem("token") as string
-      );
-      if (allowComment) {
-        const resut_data = await getCommetByAllIDS(
-          localStorage.getItem("token") as string,
-          result?.comment
-        );
-        console.log("Comemnts :: ", resut_data);
-        setComments(resut_data);
-      }
-
-      if (!result) {
+      try {
         setLoading(true);
+        const result = await getPostID(
+          _id as string,
+          localStorage.getItem("token") as string
+        );
+
+        // Fetch comments if post has comments
+        if (result?.comment && result.comment.length > 0) {
+          loadComment(result)
+          // try {
+          //   const commentsData = await getCommetByAllIDS(
+          //     localStorage.getItem("token") as string,
+          //     result.comment
+          //   );
+          //   setComments(commentsData || []);
+          // } catch (commentError) {
+          //   console.error("Failed to fetch comments:", commentError);
+          //   setComments([]);
+          // }
+        } else {
+          setComments([]);
+        }
+
+        setPosts(result);
+      } catch (err: any) {
+        console.error("Failed to fetch post:", err);
+        setPosts(null);
+      } finally {
+        setLoading(false);
       }
-      setPosts(result);
-      console.log("Result :: ", result);
     }
 
     fetchPost();
-    if (localStorage.getItem("token")) setAllowComment(true);
-    else setAllowComment(false);
-    if (reload) setReload(false);
   }, [_id, reload]);
 
   if (loading) {
@@ -114,7 +165,10 @@ const PostPage = () => {
           <p className="text-gray-600 mb-6">
             The post you are looking for doesn't exist or has been removed.
           </p>
-          <button className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md">
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md"
+          >
             Back to Home
           </button>
         </div>
@@ -128,7 +182,10 @@ const PostPage = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-blue-50">
       <div className="max-w-9/12 mx-auto px-4 py-8">
-        <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 mb-6 font-medium">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 mb-6 font-medium"
+        >
           <ArrowLeft size={20} />
           Back to Articles
         </button>
@@ -167,7 +224,7 @@ const PostPage = () => {
               <span className="text-gray-400">•</span>
               <span className="flex items-center gap-1.5">
                 <MessageCircle size={16} className="text-blue-600" />
-                {comment?.length} comments
+                {comments?.length || 0} comments
               </span>
             </div>
           </div>
@@ -224,79 +281,149 @@ const PostPage = () => {
           </div>
 
           <div className="p-8 pt-6 border-t border-gray-200 bg-linear-to-b from-white to-gray-50">
-            <div className="flex items-center gap-3 mb-6">
-              <MessageCircle size={24} className="text-blue-600" />
-              <h2 className="text-2xl font-bold text-gray-900">
-                Comments ({comment?.length || "Sign up First"})
-              </h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <MessageCircle size={24} className="text-blue-600" />
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Comments ({comments?.length || 0})
+                </h2>
+              </div>
+              {!isLoggedIn && (
+                <button
+                  onClick={handleLoginRedirect}
+                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  <LogIn size={18} />
+                  Sign in to comment
+                </button>
+              )}
             </div>
-            {/* dd */}
-            {allowComment && (
-              <>
-                <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <textarea
-                    placeholder="Share your thoughts..."
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none text-gray-800 placeholder-gray-400 transition-all duration-200"
-                    rows={3}
-                    value={comment_data}
-                    onChange={(e) => setComment_data(e.target.value)}
-                  ></textarea>
-                  <div className="flex justify-end mt-3">
-                    <button
-                      className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                      onClick={sendComment}
-                    >
-                      Post Comment
-                    </button>
-                  </div>
-                </div>
 
-                <div className="space-y-4">
-                  {comment?.map((c, index) => (
-                    <div
-                      key={index}
-                      className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+            {/* Comment Input Section */}
+            {isLoggedIn ? (
+              <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <textarea
+                  placeholder="Share your thoughts..."
+                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none text-gray-800 placeholder-gray-400 transition-all duration-200"
+                  rows={3}
+                  value={commentData}
+                  onChange={(e) => setCommentData(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && e.ctrlKey) {
+                      e.preventDefault();
+                      handleSendComment();
+                    }
+                  }}
+                ></textarea>
+                <div className="flex justify-between items-center mt-3">
+                  <p className="text-sm text-gray-500">
+                    Press Ctrl+Enter to post
+                  </p>
+                  <button
+                    className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleSendComment}
+                    disabled={!commentData.trim() || commentLoading}
+                  >
+                    {commentLoading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Posting...
+                      </span>
+                    ) : (
+                      "Post Comment"
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-8 bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle size={32} className="text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Join the conversation
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Sign in to share your thoughts on this article
+                </p>
+                <button
+                  onClick={handleLoginRedirect}
+                  className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
+                >
+                  <LogIn size={20} />
+                  Sign in to comment
+                </button>
+              </div>
+            )}
+
+            {/* Comments List */}
+            <div className="space-y-4">
+              {comments && comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden shadow-md">
+                          {comment.user?.image ? (
                             <img
-                              src={c.user.image}
-                              alt="icon"
-                              className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+                              src={comment.user.image}
+                              alt={comment.user.firstname}
+                              className="w-full h-full object-cover"
                             />
-                          </div>
-                          <div>
-                            <span className="font-semibold text-gray-900 block">
-                              {c.user.firstname}
-                            </span>
-                            <span className="text-gray-500 text-xs flex items-center gap-1">
-                              <Calendar size={12} />
-                              {new Date(c.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
-                              )}
-                            </span>
-                          </div>
+                          ) : (
+                            <div className="w-full h-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
+                              {comment.user?.firstname?.charAt(0) || "U"}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-900 block">
+                            {comment.user?.firstname || "Anonymous"}
+                          </span>
+                          <span className="text-gray-500 text-xs flex items-center gap-1">
+                            <Calendar size={12} />
+                            {new Date(comment.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </span>
                         </div>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">
-                        {c.comment}
-                      </p>
                     </div>
-                  ))}
+                    <p className="text-gray-700 leading-relaxed">
+                      {comment.comment}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <MessageCircle
+                    size={48}
+                    className="text-gray-300 mx-auto mb-4"
+                  />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    No comments yet
+                  </h3>
+                  <p className="text-gray-500">
+                    {isLoggedIn
+                      ? "Be the first to share your thoughts!"
+                      : "Sign in to be the first to comment!"}
+                  </p>
                 </div>
-              </>
-            )}
-            {/* dd */}
+              )}
+            </div>
           </div>
         </article>
       </div>
     </div>
   );
 };
+
 export default PostPage;
