@@ -185,7 +185,7 @@ export const HomePage: React.FC<Props> = ({
                   Trending Now
                 </h3>
                 <div className="space-y-4">
-                  {popularPost.map((p, idx) => (
+                  {popularPost.slice(0, 6).map((p, idx) => (
                     <Link
                       key={p._id}
                       to={`/home/post/${p._id}`}
