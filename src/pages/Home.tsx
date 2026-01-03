@@ -87,7 +87,7 @@ export const HomePage: React.FC<Props> = ({
     <div className="w-full px-4 py-8 bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 min-h-screen">
       {loading ? (
         <div className="flex items-center justify-center min-h-[500px]">
-          <img src="./public/tenor.gif" alt="Loading..." className="h-fit w-fit" />
+          <img src="https://res.cloudinary.com/dxxn3lxqw/image/upload/v1767445064/tenor_opbpzk.gif" alt="Loading..." className="h-fit w-fit" />
         </div>
       ) : (
         <div className="max-w-[1600px] mx-auto">

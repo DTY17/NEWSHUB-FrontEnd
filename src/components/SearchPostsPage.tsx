@@ -176,7 +176,7 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
         {loading ? (
           <div className="flex items-center justify-center min-h-[500px]">
             <img
-              src="/public/tenor.gif"
+              src="https://res.cloudinary.com/dxxn3lxqw/image/upload/v1767445064/tenor_opbpzk.gif"
               alt="Loading..."
               className="h-fit w-fit"
             />
