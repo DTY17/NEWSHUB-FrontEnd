@@ -64,7 +64,6 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
   const [reload, setReload] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
 
-  // Check authentication status
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
@@ -133,7 +132,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
     }
 
     fetchPost();
-  }, [_id, reload]);
+  }, [_id, reload,isLoggedIn]);
 
   if (loading) {
     return (
