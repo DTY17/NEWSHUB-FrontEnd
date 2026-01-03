@@ -20,6 +20,7 @@ type Post = {
   genre: string | string[];
   views: number;
   comment?: string[];
+  isWatchList?: boolean;
   date: string;
   createdAt?: string;
   updatedAt?: string;
@@ -27,6 +28,7 @@ type Post = {
 };
 
 type SearchPostsPageProps = {
+  post_count: number;
   loading: boolean;
   posts: Post[];
   searchPageQuery: string;
@@ -41,6 +43,7 @@ type SearchPostsPageProps = {
 };
 
 const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
+  post_count,
   loading,
   posts,
   searchPageQuery,
@@ -70,13 +73,7 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
   }, [posts, searchPageGenre]);
 
   const filteredPosts = filterSearchPosts();
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredPosts.length / postsPerPage)
-  );
-  const startIndex = (currentSearchPage - 1) * postsPerPage;
-  const endIndex = startIndex + postsPerPage;
-  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(post_count / postsPerPage));
 
   return (
     <div className="w-full px-4 py-8 bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 min-h-screen">
@@ -209,7 +206,7 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {currentPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Link
                   key={post._id}
                   to={`/home/post/${post._id}`}
@@ -268,7 +265,15 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
                           />
                         </button>
 
-                        <button className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg">
+                        <button
+                        disabled={post.isWatchList}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            console.log("Click");
+                          }}
+                          className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg"
+                        >
                           <Bookmark size={18} />
                         </button>
                       </div>
@@ -281,7 +286,9 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10 bg-white rounded-xl shadow-md p-6">
               <button
                 disabled={currentSearchPage === 1}
-                onClick={() => setCurrentSearchPage((p) => Math.max(1, p - 1))}
+                onClick={() => {
+                  setCurrentSearchPage(currentSearchPage - 1);
+                }}
                 className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <ChevronLeft size={20} />
@@ -300,9 +307,9 @@ const SearchPostsPage: React.FC<SearchPostsPageProps> = ({
 
               <button
                 disabled={currentSearchPage === totalPages}
-                onClick={() =>
-                  setCurrentSearchPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => {
+                  setCurrentSearchPage(currentSearchPage + 1);
+                }}
                 className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 Next

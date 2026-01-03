@@ -7,8 +7,8 @@ import {
   Bookmark,
   ArrowRight,
 } from "lucide-react";
-import { mostview, popular, recent } from "../services/post";
-import { Link } from "react-router-dom";
+import { mostview, popular, recent, setLoadWatchlist } from "../services/post";
+import { Link, useNavigate } from "react-router-dom";
 
 const genres = [
   "Technology",
@@ -27,6 +27,7 @@ interface Post {
   genre: string[];
   views: number;
   date: string;
+  isWatchList: boolean;
 }
 
 interface Props {
@@ -50,6 +51,17 @@ export const HomePage: React.FC<Props> = ({
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [popularPost, setPopularPost] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
+  // const navigation = useNavigate();
+  async function loadWatchlist(post: string) {
+    await setLoadWatchlist(
+      localStorage.getItem("token") as string,
+      localStorage.getItem("email") as string,
+      post
+    );
+  }
+  const clickWatchlistBtn = (post: string) => {
+    loadWatchlist(post);
+  };
 
   useEffect(() => {
     async function fetchPosts() {
@@ -83,6 +95,10 @@ export const HomePage: React.FC<Props> = ({
     }
     fetchPosts();
   }, [filter]);
+
+  const load_more_article = () => {
+    setSearchQuery("All");
+  };
 
   return (
     <div className="w-full px-4 py-8 bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 min-h-screen">
@@ -300,7 +316,15 @@ export const HomePage: React.FC<Props> = ({
                               className="ml-2 group-hover/btn:translate-x-1 transition-transform"
                             />
                           </button>
-                          <button className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              clickWatchlistBtn(p._id);
+                            }}
+                            disabled={p.isWatchList}
+                            className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg"
+                          >
                             <Bookmark size={18} />
                           </button>
                         </div>
@@ -310,11 +334,14 @@ export const HomePage: React.FC<Props> = ({
                 ))}
               </div>
 
-              {/* <div className="mt-12 text-center">
-                <button className="px-10 py-4 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold uppercase tracking-wide rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+              <div className="mt-12 text-center">
+                <button
+                  onClick={load_more_article}
+                  className="px-10 py-4 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold uppercase tracking-wide rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
                   Load More Articles
                 </button>
-              </div> */}
+              </div>
             </main>
           </div>
         </div>

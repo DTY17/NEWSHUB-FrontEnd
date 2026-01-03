@@ -31,11 +31,12 @@ export const getSearch = async (
   data: any,
   genre: string,
   page: number,
-  token: string
+  token: string,
+  user: string
 ) => {
   const search = data as string;
   const res = await api.post(
-    `/post/search-post/${search}/${genre}/${page}`,
+    `/post/search-post/${search}/${genre}/${page}/${user}`,
     {},
     {
       headers: {
@@ -44,8 +45,8 @@ export const getSearch = async (
       },
     }
   );
-  console.log(res.data.data.posts);
-  return res.data.data.posts;
+  console.log(res.data.data);
+  return res.data.data;
 };
 
 export const getPost = async () => {
@@ -278,3 +279,46 @@ export const getCommetByAllIDS = async (token: string , data: string[]) => {
   );
   return res.data.data;
 };
+
+export const getLoadWatchlist = async ( token: string , user: string ) => {
+  const res = await api.post(
+    `/post/get-load-watchlist/${user}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  console.log(res)
+  return res.data.data;
+}
+
+export const setLoadWatchlist = async ( token: string , user: string , post: string) => {
+  const res = await api.post(
+    `/post/set-load-watchlist/${post}/${user}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  console.log(res)
+  return res.data.data;
+}
+
+
+export const deleteLoadWatchlist = async ( token: string , post: string , user: string) => {
+  const res = await api.post(
+    `/post/delete-load-watchlist/${post}/${user}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  console.log(res)
+  return res.data.data;
+}

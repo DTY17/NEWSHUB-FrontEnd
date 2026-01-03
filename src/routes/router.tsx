@@ -16,6 +16,7 @@ import { AdminSettings } from "../components/Settings";
 import { AdminManage } from "../components/AdminManage";
 import { AdminEditPost } from "../components/EditPost";
 import AdminLogin from "../components/AdminLogin";
+import Watchlist from "../components/WatchList";
 
 const Router = () => {
   const [currentPage, setCurrentPage] = useState<"home" | "about" | "contact">(
@@ -89,7 +90,8 @@ const Router = () => {
           <Route
             path="search"
             element={<SearchData searchData={searchQuery} />}
-          />
+          />Watchlist
+          <Route path="watchlist" element={<Watchlist />} />
           <Route path="aboutme" element={<AboutPage />} />
           <Route path="contactme" element={<ContactPage />} />
           <Route

@@ -320,6 +320,7 @@ export const Header: FC<Props> = ({
                         className="w-full px-4 py-3 text-left border-none hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-200"
                         onClick={() => {
                           setShowDropdown(false);
+                          navigation(`/home/watchlist`)
                         }}
                       >
                         <Bookmark size={18} className="text-blue-600" />

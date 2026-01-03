@@ -15,6 +15,13 @@ const genres = [
   "Entertainment",
 ];
 
+type d = {
+  posts:Post[];
+  total: number;
+  currentPage: number;
+  totalPages:number;
+}
+
 export type Post = {
   _id: string;
   image: string[];
@@ -28,6 +35,7 @@ export type Post = {
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
+  isWatchList?: boolean;
 };
 
 type SearchDataProps = {
@@ -43,20 +51,24 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   const postsPerPage = 9;
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading,setLoading] = useState(false)
+  const [post_count,setPost_count] = useState<number>(0)
 
   useEffect(() => {
     let mounted = true;
     async function fetchPosts() {
       try {
         setLoading(true)
-        const data = await getSearch(
+        const data:d= await getSearch(
           searchPageQuery,
           searchPageGenre,
           currentSearchPage,
-          localStorage.getItem("token") as string
+          localStorage.getItem("token") as string,
+          localStorage.getItem("email") as string
         );
+        console.log(data.posts)
+        setPost_count(data.total)
         if (!mounted) return;
-        if (Array.isArray(data)) setPosts(data);
+        if (Array.isArray(data.posts)) setPosts(data.posts);
         else setPosts([]);
       } catch (err) {
         console.error("fetchPosts error:", err);
@@ -74,12 +86,14 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   const searchDataFun = useCallback(
     async (inp: string) => {
       try {
+        console.log(currentSearchPage)
         setLoading(true)
         const data = await getSearch(
           inp,
           searchPageGenre,
           currentSearchPage,
-          localStorage.getItem("token") as string
+          localStorage.getItem("token") as string,
+          localStorage.getItem("email") as string
         );
         if (Array.isArray(data)) setPosts(data);
         else setPosts([]);
@@ -96,17 +110,18 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
       <SearchPostsPage
-        loading = {loading}
-        posts={posts}
-        searchPageQuery={searchPageQuery}
-        setSearchPageQuery={setSearchPageQuery}
+        post_count = { post_count }
+        loading = { loading }
+        posts = { posts }
+        searchPageQuery = { searchPageQuery }
+        setSearchPageQuery = { setSearchPageQuery }
         searchPageGenre={searchPageGenre}
-        setSearchPageGenre={setSearchPageGenre}
-        currentSearchPage={currentSearchPage}
-        setCurrentSearchPage={setCurrentSearchPage}
-        postsPerPage={postsPerPage}
-        searchDataFun={searchDataFun}
-        genres={genres}
+        setSearchPageGenre = { setSearchPageGenre }
+        currentSearchPage = { currentSearchPage }
+        setCurrentSearchPage = { setCurrentSearchPage }
+        postsPerPage = { postsPerPage }
+        searchDataFun = { searchDataFun }
+        genres = { genres }
       />
     </div>
   );
