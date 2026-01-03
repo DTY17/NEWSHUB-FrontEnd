@@ -16,7 +16,7 @@ export const ContactPage: React.FC = () => (
           <label className="block text-gray-700 font-semibold mb-2">Message</label>
           <textarea rows={6} className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800 placeholder-gray-400" placeholder="Your message..."></textarea>
         </div>
-        <button className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-semibold text-lg">Send Message</button>
+        <button className="w-full py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-semibold text-lg">Send Message</button>
       </form>
 
       <div className="mt-8 pt-8 border-t border-gray-200">

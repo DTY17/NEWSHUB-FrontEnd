@@ -42,7 +42,7 @@ const SearchData: React.FC<SearchDataProps> = ({ searchData = "" }) => {
   const [currentSearchPage, setCurrentSearchPage] = useState<number>(1);
   const postsPerPage = 9;
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading,setLoading] = useState<boolean>(false)
+  const [loading,setLoading] = useState(false)
 
   useEffect(() => {
     let mounted = true;
