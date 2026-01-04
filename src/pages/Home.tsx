@@ -8,7 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { mostview, popular, recent, setLoadWatchlist } from "../services/post";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const genres = [
   "Technology",
