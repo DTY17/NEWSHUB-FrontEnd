@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 export const AdminSettings: React.FC = () => {
-
   // Profile/account settings
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -19,10 +18,11 @@ export const AdminSettings: React.FC = () => {
     <div>
       <h1 className="text-3xl font-bold text-indigo-900 mb-6">Settings</h1>
       <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-
         {/* Username */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Username
+          </label>
           <input
             type="text"
             value={username}
@@ -33,7 +33,9 @@ export const AdminSettings: React.FC = () => {
 
         {/* Password */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Password
+          </label>
           <input
             type="password"
             value={password}
@@ -44,7 +46,9 @@ export const AdminSettings: React.FC = () => {
 
         {/* Profile picture */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Profile Picture</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Profile Picture
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -52,13 +56,17 @@ export const AdminSettings: React.FC = () => {
             className="w-full text-gray-700"
           />
           {profilePic && (
-            <p className="text-xs text-gray-500 mt-1">Selected: {profilePic.name}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Selected: {profilePic.name}
+            </p>
           )}
         </div>
 
         {/* About/Bio */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">About</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            About
+          </label>
           <textarea
             value={about}
             onChange={(e) => setAbout(e.target.value)}
@@ -69,7 +77,9 @@ export const AdminSettings: React.FC = () => {
 
         {/* Contact Email */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Contact Email
+          </label>
           <input
             type="email"
             value={email}
@@ -79,9 +89,22 @@ export const AdminSettings: React.FC = () => {
         </div>
 
         {/* Save button */}
-        <button className="px-6 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg font-semibold">
-          Save Settings
-        </button>
+        <div className="flex flex-col w-50 gap-2.5">
+          <button className="px-6 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg font-semibold">
+            Save Settings
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("admin_token");
+              localStorage.removeItem("admin_email");
+              localStorage.removeItem("admin_refresh_token");
+              window.location.reload();
+            }}
+            className="px-6 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg font-semibold"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );

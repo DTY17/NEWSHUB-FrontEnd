@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Shield, Mail, Lock, ArrowLeft, Key } from "lucide-react";
 import { loginAdmin } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import { sendEmail } from "../services/email";
 
 export default function AdminLogin() {
   const [view, setView] = useState<"login" | "forgot" | "code">("login");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("dinanthemika.personal@gmail.com");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
@@ -19,17 +20,23 @@ export default function AdminLogin() {
       setError("Please fill in all fields");
       return;
     }
-    console.log(email)
-    console.log(password)
-    const data = await loginAdmin({ email , password })
-    localStorage.setItem("admin_email", data.data.email)
-    localStorage.setItem("admin_token", data.data.token)
-    localStorage.setItem("admin_refresh_token", data.data.refresh_token)
+    console.log(email);
+    console.log(password);
+    const data = await loginAdmin({ email, password });
+    localStorage.setItem("admin_email", data.data.email);
+    localStorage.setItem("admin_token", data.data.token);
+    localStorage.setItem("admin_refresh_token", data.data.refresh_token);
 
-    if(data.data.email && data.data.token && data.data.refresh_token) {
-        navigation(`/admin`);
+    if (data.data.email && data.data.token && data.data.refresh_token) {
+      navigation(`/admin`);
     }
   };
+
+  function generateNumericCode(length = 6): string {
+    const array = new Uint32Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, (n) => (n % 10).toString()).join("");
+  }
 
   const handleForgotPassword = async () => {
     setError("");
@@ -38,7 +45,8 @@ export default function AdminLogin() {
       setError("Please enter your email address");
       return;
     }
-    // Add your forgot password API call here
+
+    await sendEmail(generateNumericCode());
     console.log("Send reset code to:", email);
     setSuccess("Reset code sent to your email");
     setTimeout(() => setView("code"), 1500);
@@ -78,7 +86,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="h-full w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 absolute ">
+    <div className="h-full w-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 absolute top-0">
       <div className="w-full max-w-md">
         {/* Login View */}
         {view === "login" && (
@@ -87,7 +95,9 @@ export default function AdminLogin() {
               <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <Shield className="text-white" size={32} />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">Admin Portal</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Admin Portal
+              </h1>
               <p className="text-slate-400 text-sm">Authorized access only</p>
             </div>
 
@@ -97,7 +107,10 @@ export default function AdminLogin() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    size={18}
+                  />
                   <input
                     type="email"
                     value={email}
@@ -113,7 +126,10 @@ export default function AdminLogin() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    size={18}
+                  />
                   <input
                     type="password"
                     value={password}
@@ -169,7 +185,9 @@ export default function AdminLogin() {
               <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <Mail className="text-white" size={32} />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">Reset Password</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Reset Password
+              </h1>
               <p className="text-slate-400 text-sm text-center">
                 Enter your email to receive a verification code
               </p>
@@ -181,10 +199,14 @@ export default function AdminLogin() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    size={18}
+                  />
                   <input
                     type="email"
-                    value={email}
+                    value={"dina***************@gmail.com"}
+                    contentEditable={false}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@example.com"
                     className="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
@@ -205,7 +227,10 @@ export default function AdminLogin() {
               )}
 
               <button
-                onClick={handleForgotPassword}
+                onClick={() => {
+                  handleForgotPassword;
+                  setEmail("dinanthemika.personal@gmail.com");
+                }}
                 className="w-full py-3 bg-linear-to-r from-purple-500 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Send Reset Code
@@ -235,7 +260,8 @@ export default function AdminLogin() {
               </div>
               <h1 className="text-3xl font-bold text-white mb-2">Enter Code</h1>
               <p className="text-slate-400 text-sm text-center">
-                We sent a 6-digit code to<br />
+                We sent a 6-digit code to
+                <br />
                 <span className="text-blue-400 font-medium">{email}</span>
               </p>
             </div>

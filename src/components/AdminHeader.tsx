@@ -29,7 +29,7 @@ export const AdminHeader = () => {
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-linear-to-br from-pink-500 to-yellow-500 rounded-lg flex items-center justify-center font-bold text-xl">
-              Admin
+              N
             </div>
             <span className="text-2xl font-bold">NewsHub</span>
           </div>

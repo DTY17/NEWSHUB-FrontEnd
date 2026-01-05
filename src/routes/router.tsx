@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Header } from "../components/Header";
 import { HomePage } from "../pages/Home";
 import { Footer } from "../components/Footer";
@@ -31,6 +32,11 @@ const Router = () => {
 
   const navigation = useNavigate();
 
+  // Redux theme mode: "light" | "dark"
+  const mode = useSelector((state: any) => state.theme?.mode);
+  // const mode = "dark"
+  
+
   useEffect(() => {
     if (searchQuery !== "") {
       navigation("/home/search");
@@ -38,33 +44,33 @@ const Router = () => {
   }, [searchQuery]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
-      <Routes>
-        <Route
-          path="/home/*"
-          element={
-            <>
-              <Header
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-                setDP={setDP}
-                dp={dp}
-                showLoginModal={showLoginModal}
-                setShowLoginModal={setShowLoginModal}
-              />
-              <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
-                <Outlet />
-              </div>
-              <Footer />
-            </>
-          }
-        >
+    <div className={mode === "dark" ? "dark" : ""}>
+      <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+        <Routes>
           <Route
-            index
+            path="/home/*"
             element={
               <>
+                <Header
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
+                  isLoggedIn={isLoggedIn}
+                  setIsLoggedIn={setIsLoggedIn}
+                  setDP={setDP}
+                  dp={dp}
+                  showLoginModal={showLoginModal}
+                  setShowLoginModal={setShowLoginModal}
+                />
+                <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+                  <Outlet />
+                </div>
+                <Footer />
+              </>
+            }
+          >
+            <Route
+              index
+              element={
                 <HomePage
                   filter={filter}
                   setFilter={setFilter}
@@ -73,52 +79,50 @@ const Router = () => {
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                 />
+              }
+            />
+            <Route
+              path="post/:_id"
+              element={
+                <PostPage
+                  showLoginModal={showLoginModal}
+                  setShowLoginModal={setShowLoginModal}
+                  setIsLoggedIn={setIsLoggedIn}
+                  isLoggedIn={isLoggedIn}
+                />
+              }
+            />
+            <Route path="search" element={<SearchData searchData={searchQuery} />} />
+            <Route path="watchlist" element={<Watchlist />} />
+            <Route path="aboutme" element={<AboutPage />} />
+            <Route path="contactme" element={<ContactPage />} />
+            <Route
+              path="profile/:email"
+              element={<Profile setDP={setDP} dp={dp} />}
+            />
+          </Route>
+
+          <Route
+            path="/admin/*"
+            element={
+              <>
+                <AdminHeader />
+                <AdminLayout />
+                <Footer />
               </>
             }
-          />
-          <Route
-            path="post/:_id"
-            element={
-              <PostPage
-                showLoginModal={showLoginModal}
-                setShowLoginModal={setShowLoginModal}
-                setIsLoggedIn={setIsLoggedIn}
-                isLoggedIn={isLoggedIn}
-              />
-            }
-          />
-          <Route
-            path="search"
-            element={<SearchData searchData={searchQuery} />}
-          />Watchlist
-          <Route path="watchlist" element={<Watchlist />} />
-          <Route path="aboutme" element={<AboutPage />} />
-          <Route path="contactme" element={<ContactPage />} />
-          <Route
-            path="profile/:email"
-            element={<Profile setDP={setDP} dp={dp} />}
-          />
-        </Route>
+          >
+            <Route index element={<AdminAnalytics />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="add" element={<AdminAddPost />} />
+            <Route path="manage" element={<AdminManage />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="manage/:id" element={<AdminEditPost />} />
+          </Route>
 
-        <Route
-          path="/admin/*"
-          element={
-            <>
-              <AdminHeader />
-              <AdminLayout />
-              <Footer />
-            </>
-          }
-        >
-          <Route index element={<AdminAnalytics />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="add" element={<AdminAddPost />} />
-          <Route path="manage" element={<AdminManage />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="manage/:id" element={<AdminEditPost />} />
-        </Route>
-        <Route path="/admin/login" element={<AdminLogin />} />
-      </Routes>
+          <Route path="/admin/login" element={<AdminLogin />} />
+        </Routes>
+      </div>
     </div>
   );
 };

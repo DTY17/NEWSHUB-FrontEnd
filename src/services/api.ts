@@ -3,7 +3,7 @@ import axios from "axios"
 
 // create auth
 const api = axios.create({
-  baseURL: "https://news-hub-lime-two.vercel.app/api/abc/"
+  baseURL: "https://abcbe.vercel.app/api/abc/"
 })
 
 const PUBLIC_ENDPOINTS = ["user/login", "/user/register"]

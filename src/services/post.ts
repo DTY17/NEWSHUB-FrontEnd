@@ -60,16 +60,13 @@ export const getPost = async () => {
 };
 
 export const getPostID = async (id: string, token: string) => {
-  console.log("id ",id);
-  const res = await api.post(
-    `/post/post-by-id/${id}`,
-    {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  console.log("id ", id);
+  const res = await api.post(`/post/post-by-id/${id}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
   const res_data = res.data;
   console.log("get", res_data.data);
   return res_data.data;
@@ -91,7 +88,7 @@ export const getCommentByPost = async (id: string, token: string) => {
   return res.data;
 };
 
-export const savePost = async (data: Post,token : string) => {
+export const savePost = async (data: Post, token: string) => {
   console.log({
     topic: data.topic,
     genre: data.genre,
@@ -102,21 +99,24 @@ export const savePost = async (data: Post,token : string) => {
     comment: data.comment,
   });
 
-  const res = await api.post(`/post/save-post`, {
-    topic: data.topic,
-    genre: data.genre,
-    views: data.views,
-    paragraph: data.paragraph,
-    image: data.image,
-    order: data.order,
-    comment: data.comment,
-  },
-  {
-    headers: {
-      authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+  const res = await api.post(
+    `/post/save-post`,
+    {
+      topic: data.topic,
+      genre: data.genre,
+      views: data.views,
+      paragraph: data.paragraph,
+      image: data.image,
+      order: data.order,
+      comment: data.comment,
     },
-  });
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   const res_data = res;
   console.log(res_data);
@@ -138,7 +138,7 @@ export const mostview = async (data: string) => {
   return res.data.data;
 };
 
-export const updatePost = async (data: updatedPosts,token: string) => {
+export const updatePost = async (data: updatedPosts, token: string) => {
   console.log("input", {
     _id: data._id,
     topic: data.topic,
@@ -149,34 +149,40 @@ export const updatePost = async (data: updatedPosts,token: string) => {
     order: data.order,
   });
 
-  const res = await api.post(`/post/update`, {
-    _id: data._id,
-    topic: data.topic,
-    genre: data.genre,
-    views: data.views,
-    paragraph: data.paragraph,
-    image: data.image,
-    order: data.order,
-  },{
-    headers: {
-      authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+  const res = await api.post(
+    `/post/update`,
+    {
+      _id: data._id,
+      topic: data.topic,
+      genre: data.genre,
+      views: data.views,
+      paragraph: data.paragraph,
+      image: data.image,
+      order: data.order,
     },
-  });
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   const res_data = res;
   console.log("data", res_data);
   return res_data;
 };
 
-export const deletePost = async (id: string,token: string) => {
-  const res = await api.post(`/post/delete/${id}`,
-    {},{
-        headers: {
-          authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
+export const deletePost = async (id: string, token: string) => {
+  const res = await api.post(
+    `/post/delete/${id}`,
+    {},
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
   );
   return res.data.message;
 };
@@ -266,7 +272,7 @@ interface Comment {
   comment: string;
 }
 
-export const getCommetByAllIDS = async (token: string , data: string[]) => {
+export const getCommetByAllIDS = async (token: string, data: string[]) => {
   const res = await api.post(
     `/comment/get-all-by-id`,
     { data },
@@ -280,45 +286,47 @@ export const getCommetByAllIDS = async (token: string , data: string[]) => {
   return res.data.data;
 };
 
-export const getLoadWatchlist = async ( token: string , user: string ) => {
-  const res = await api.post(
-    `/post/get-load-watchlist/${user}`,
-    {
+export const getLoadWatchlist = async (token: string, user: string) => {
+  const res = await api.post(`/post/get-load-watchlist/${user}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  console.log("Watchlist : ",res);
+  return res.data.data;
+};
+
+export const setLoadWatchlist = async (
+  token: string,
+  user: string,
+  post: string
+) => {
+  try {
+    const res = await api.post(`/post/set-load-watchlist/${post}/${user}`, {
       headers: {
         authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-    }
-  );
-  console.log(res)
-  return res.data.data;
-}
+    });
+    console.log("data error : ", res);
+    return res.data.data;
+  } catch (err: any) {
+    console.log(err)
+  }
+};
 
-export const setLoadWatchlist = async ( token: string , user: string , post: string) => {
-  const res = await api.post(
-    `/post/set-load-watchlist/${post}/${user}`,
-    {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  console.log(res)
+export const deleteLoadWatchlist = async (
+  token: string,
+  post: string,
+  user: string
+) => {
+  const res = await api.post(`/post/delete-load-watchlist/${post}/${user}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  console.log(res);
   return res.data.data;
-}
-
-
-export const deleteLoadWatchlist = async ( token: string , post: string , user: string) => {
-  const res = await api.post(
-    `/post/delete-load-watchlist/${post}/${user}`,
-    {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  console.log(res)
-  return res.data.data;
-}
+};
