@@ -1,7 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
+// const GEMINI = import.meta.env.GEMINI as string;
+
+
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyDjXGr2F_ijw-BslrqjIJbe67k4Avyiebo",
+  apiKey: "AIzaSyBky_MZWWc_KJj88S5v6lPsFdirwKPEW5E",
 });
 
 const getAiResponse = async (data: string) => {
@@ -13,10 +16,24 @@ const getAiResponse = async (data: string) => {
     console.log(response.text);
     return response.text;
   } catch (err: any) {
-    if(err.includes("429")){
-      return "error-429"
+    console.error("AI Response Error:", err);
+    
+    if (err.message && err.message.includes("429")) {
+      return "error-429";
     }
-    return "error"
+    
+    if (err.message && err.message.includes("403")) {
+      return "403 error"; 
+    }
+    
+    if (err.status === 403 || err.code === 403) {
+      return "test error";
+    }
+
+    if (err.response && err.response.status === 403) {
+      return "test error";
+    }
+    return "error";
   }
 };
 

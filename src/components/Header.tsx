@@ -34,7 +34,6 @@ export const Header: FC<Props> = ({
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  //const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -242,7 +241,7 @@ export const Header: FC<Props> = ({
         <div className="w-full px-4 py-4">
           <div className="flex items-center justify-between max-w-[1600px] mx-auto">
             <div
-              className="flex items-center space-x-3 hover: cursor-pointer"
+              className="flex items-center space-x-3 hover:cursor-pointer"
               onClick={clickHome}
             >
               <div className="w-11 h-11 bg-white rounded-lg flex items-center justify-center font-bold text-2xl text-blue-600 shadow-md">
@@ -255,14 +254,14 @@ export const Header: FC<Props> = ({
               </span>
             </div>
 
-            <nav className="hidden md:flex space-x-1">
+            <nav className="hidden nav-break:flex space-x-1">
               {["home", "about", "contact"].map((p) => (
                 <button
                   key={p}
                   onClick={() => setCurrentPage(p)}
-                  className={`px-6 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:cursor-pointer ${
+                  className={` hover:text-black px-6 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:cursor-pointer ${
                     currentPage === p
-                      ? "text-black bg-white bg-opacity-20 shadow-md"
+                      ? "text-black bg-white bg-opacity-20 shadow-md hover:text-black"
                       : "text-blue-100 hover:text-black hover:bg-white hover:bg-opacity-10"
                   }`}
                 >
@@ -297,7 +296,7 @@ export const Header: FC<Props> = ({
                   {showDropdown && (
                     <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-200 rounded-lg shadow-2xl py-2 text-gray-800">
                       <button
-                        className="  hover:cursor-pointer w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-200"
+                        className="hover:cursor-pointer hover:text-black w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-200"
                         onClick={() => {
                           goToProfile();
                           setShowDropdown(false);
@@ -307,10 +306,10 @@ export const Header: FC<Props> = ({
                         <span className="font-medium">Profile</span>
                       </button>
                       <button
-                        className="hover:cursor-pointer w-full px-4 py-3 text-left border-none hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-200"
+                        className="hover:cursor-pointer hover:text-black w-full px-4 py-3 text-left border-none hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-200"
                         onClick={() => {
                           setShowDropdown(false);
-                          navigation(`/home/watchlist`)
+                          navigation(`/home/watchlist`);
                         }}
                       >
                         <Bookmark size={18} className="text-blue-600" />
@@ -319,7 +318,7 @@ export const Header: FC<Props> = ({
                       <div className="border-t border-gray-200 my-1"></div>
                       <button
                         onClick={handleLogout}
-                        className="hover:cursor-pointer w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 text-red-600 transition-colors duration-200"
+                        className="hover:cursor-pointer hover:text-black w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 text-red-600 transition-colors duration-200"
                       >
                         <LogOut size={18} />
                         <span className="font-medium">Logout</span>
@@ -328,7 +327,7 @@ export const Header: FC<Props> = ({
                   )}
                 </div>
               ) : (
-                <div className="hidden md:flex space-x-3">
+                <div className="hidden nav-break:flex space-x-3">
                   <button
                     onClick={() => setShowLoginModal(true)}
                     className="hover:cursor-pointer px-6 py-2.5 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-300 font-semibold shadow-md"
@@ -337,7 +336,7 @@ export const Header: FC<Props> = ({
                   </button>
                   <button
                     onClick={() => setShowSignupModal(true)}
-                    className=" hover:cursor-pointer px-6 py-2.5 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-300 font-semibold"
+                    className="hover:cursor-pointer px-6 py-2.5 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-300 font-semibold"
                   >
                     Sign Up
                   </button>
@@ -345,7 +344,7 @@ export const Header: FC<Props> = ({
               )}
               <button
                 onClick={() => setShowMobileMenu((s) => !s)}
-                className="hover:cursor-pointer md:hidden p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200"
+                className="hover:cursor-pointer hover:text-black nav-break:hidden p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200"
               >
                 {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -354,7 +353,7 @@ export const Header: FC<Props> = ({
 
           {/* Mobile Menu */}
           {showMobileMenu && (
-            <div className="md:hidden mt-4 pb-4 border-t border-blue-400 pt-4">
+            <div className="nav-break:hidden mt-4 pb-4 border-t border-blue-400 pt-4">
               <nav className="flex flex-col space-y-2">
                 {["home", "about", "contact"].map((p) => (
                   <button
@@ -363,10 +362,10 @@ export const Header: FC<Props> = ({
                       setCurrentPage(p);
                       setShowMobileMenu(false);
                     }}
-                    className={` hover:cursor-pointer text-left px-4 py-3 text-white rounded-lg transition-colors duration-200 text-sm font-medium outline-none focus:outline-none focus:border-none focus:ring-2 focus:ring-white focus:ring-opacity-50${
+                    className={`hover:cursor-pointer hover:text-black text-left px-4 py-3 text-white rounded-lg transition-colors duration-200 text-sm font-medium outline-none focus:outline-none focus:border-none focus:ring-2 focus:ring-white focus:ring-opacity-50 ${
                       currentPage === p
                         ? "bg-blue-500 bg-opacity-20 text-white shadow-sm border-none"
-                        : "text-blue-500 hover:text-white hover:bg-white hover:bg-opacity-10 border-none"
+                        : "text-blue-500 hover:text-black hover:bg-white hover:bg-opacity-10 border-none"
                     }`}
                   >
                     {p === "home"
@@ -392,7 +391,7 @@ export const Header: FC<Props> = ({
                         setShowSignupModal(true);
                         setShowMobileMenu(false);
                       }}
-                      className="w-20 hover:cursor-pointer  px-4 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300"
+                      className="w-full hover:cursor-pointer px-4 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300"
                     >
                       Sign Up
                     </button>
@@ -664,11 +663,11 @@ export const Header: FC<Props> = ({
 //     console.log(email)
 //     const html = document.documentElement;
 //     const body = document.body;
-    
+
 //     // Completely remove and re-add classes
 //     html.classList.remove("dark", "light");
 //     body.classList.remove("dark", "light");
-    
+
 //     if (mode === "dark") {
 //       console.log("🌙 Setting DARK mode");
 //       html.classList.add("dark");
@@ -682,13 +681,13 @@ export const Header: FC<Props> = ({
 //       html.style.colorScheme = "light";
 //       body.style.backgroundColor = "#ffffff";
 //     }
-    
+
 //     console.log("📝 Current HTML classes AFTER:", document.documentElement.className);
 //     console.log("✅ HTML has 'dark' class?", html.classList.contains("dark"));
-    
+
 //     // Also save to localStorage for persistence
 //     // localStorage.setItem("theme-mode", mode);
-    
+
 //   }, [mode]);
 
 //   async function getEmail() {

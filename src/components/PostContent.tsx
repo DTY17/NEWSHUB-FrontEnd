@@ -56,7 +56,7 @@ interface Props {
   isLoggedIn: boolean;
 }
 
-const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => {
+const PostPage = ({ setShowLoginModal, setIsLoggedIn, isLoggedIn }: Props) => {
   const { _id } = useParams();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post | null>(null);
@@ -65,7 +65,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
   const [commentData, setCommentData] = useState<string>("");
   const [reload, setReload] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
-  const [ai , setAi] = useState("");
+  const [ai, setAi] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -124,11 +124,12 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
           : String(result.paragraph ?? "");
 
         const res = await getAiResponse(data);
-        if (res === "error-429") setAi("tokens empty")
-        else setAi(res as string)
+        if (res === "error-429") setAi("Unable to Load Summary");
+        if (res === "403 error") setAi("Unable to get Summary");
+        else setAi(res as string);
 
         if (result?.comment && result.comment.length > 0) {
-          loadComment(result)
+          loadComment(result);
         } else {
           setComments([]);
         }
@@ -143,12 +144,12 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
     }
 
     fetchPost();
-  }, [_id, reload,isLoggedIn]);
+  }, [_id, reload, isLoggedIn]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-md p-12 text-center">
+        <div className="bg-white rounded-xl shadow-md p-8 md:p-12 text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading article...</p>
         </div>
@@ -158,9 +159,9 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
 
   if (!posts) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-md p-12 text-center border-l-4 border-red-500">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md p-6 md:p-12 text-center border-l-4 border-red-500 max-w-lg w-full">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
             Post Not Found
           </h2>
           <p className="text-gray-600 mb-6">
@@ -182,20 +183,25 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-blue-50">
-      <div className="max-w-9/12 mx-auto px-4 py-8">
+      {/* Main container - Responsive width */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 mb-6 font-medium"
         >
           <ArrowLeft size={20} />
-          Back to Articles
+          <span className="hidden sm:inline">Back to Articles</span>
+          <span className="sm:hidden">Back</span>
         </button>
 
         <article className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="p-8 pb-6 border-b border-gray-200">
-            <h1 className="text-6xl text-black mb-4">{posts.topic}</h1>
-            <div className="flex items-center justify-between mb-4">
-              <span className="px-4 py-1.5 bg-linear-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-full uppercase tracking-wide shadow-sm">
+          {/* Header section */}
+          <div className="p-4 sm:p-6 md:p-8 pb-4 sm:pb-6 border-b border-gray-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-black mb-4">
+              {posts.topic}
+            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <span className="px-4 py-1.5 bg-linear-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-full uppercase tracking-wide shadow-sm w-fit">
                 {posts.genre}
               </span>
               <div className="flex items-center gap-4">
@@ -208,21 +214,21 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-6">
               <span className="flex items-center gap-1.5">
                 <Calendar size={16} className="text-blue-600" />
                 {new Date(posts.date).toLocaleDateString("en-US", {
-                  month: "long",
+                  month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}
               </span>
-              <span className="text-gray-400">•</span>
+              <span className="text-gray-400 hidden sm:inline">•</span>
               <span className="flex items-center gap-1.5">
                 <Eye size={16} className="text-blue-600" />
                 {(posts.views ?? 0).toLocaleString()} views
               </span>
-              <span className="text-gray-400">•</span>
+              <span className="text-gray-400 hidden sm:inline">•</span>
               <span className="flex items-center gap-1.5">
                 <MessageCircle size={16} className="text-blue-600" />
                 {comments?.length || 0} comments
@@ -230,14 +236,15 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
             </div>
           </div>
 
-          <div className="p-8 space-y-6">
+          {/* Content section */}
+          <div className="p-4 sm:p-6 md:p-8 space-y-6">
             {posts.order?.map((block, i) => {
               switch (block) {
                 case "Topic":
                   return (
                     <h1
                       key={i}
-                      className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight"
+                      className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
                     >
                       {posts.topic}
                     </h1>
@@ -251,7 +258,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                     return (
                       <p
                         key={i}
-                        className="text-gray-700 leading-relaxed text-lg"
+                        className="text-gray-700 leading-relaxed text-base sm:text-lg"
                       >
                         {text}
                       </p>
@@ -265,11 +272,11 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                   ) {
                     const src = posts.image[imageIndex++];
                     return (
-                      <div key={i} className="my-8">
+                      <div key={i} className="my-4 sm:my-6 md:my-8">
                         <img
                           src={src}
                           alt={`Post image ${i}`}
-                          className="w-full rounded-lg shadow-lg"
+                          className="w-full h-auto rounded-lg shadow-lg"
                         />
                       </div>
                     );
@@ -281,35 +288,38 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
             })}
           </div>
 
-          <div className="mt-20 p-8 pt-6 border-t border-gray-200  bg-linear-to-b from-white to-gray-50 ">
-               <div className="flex items-center justify-between mb-6">
-                 <div className="flex items-center gap-3">
-                   <ReceiptText size={24} className="text-blue-600" />
-                   <h2 className="text-2xl font-bold text-gray-900 ">
-                     Ai Generated Summery
-                   </h2>
-                 </div>
-               </div>
-               <div className="bg-white  p-6 rounded-lg shadow-sm border text-black border-gray-100  hover:border-blue-200  transition-all duration-200">
-                 <p>{ai}</p>
-               </div>
-             </div>
-
-          <div className="p-8 pt-6 border-t border-gray-200 bg-linear-to-b from-white to-gray-50">
-            <div className="flex items-center justify-between mb-6">
+          {/* AI Summary section */}
+          <div className="mt-8 md:mt-20 p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 border-t border-gray-200 bg-linear-to-b from-white to-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <MessageCircle size={24} className="text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-900">
+                <ReceiptText size={20}  className="text-blue-600 sm:w-6" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  AI Generated Summary
+                </h2>
+              </div>
+            </div>
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border text-black border-gray-100 hover:border-blue-200 transition-all duration-200">
+              <p className="text-sm sm:text-base">{ai || "Loading summary..."}</p>
+            </div>
+          </div>
+
+          {/* Comments section */}
+          <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 border-t border-gray-200 bg-linear-to-b from-white to-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <MessageCircle size={20} className="text-blue-600 sm:w-6" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Comments ({comments?.length || 0})
                 </h2>
               </div>
               {!isLoggedIn && (
                 <button
                   onClick={handleLoginRedirect}
-                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg w-fit"
                 >
                   <LogIn size={18} />
-                  Sign in to comment
+                  <span className="hidden sm:inline">Sign in to comment</span>
+                  <span className="sm:hidden">Sign in</span>
                 </button>
               )}
             </div>
@@ -319,7 +329,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
               <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <textarea
                   placeholder="Share your thoughts..."
-                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none text-gray-800 placeholder-gray-400 transition-all duration-200"
+                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none text-gray-800 placeholder-gray-400 transition-all duration-200 text-sm sm:text-base"
                   rows={3}
                   value={commentData}
                   onChange={(e) => setCommentData(e.target.value)}
@@ -330,17 +340,17 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                     }
                   }}
                 ></textarea>
-                <div className="flex justify-between items-center mt-3">
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-3 gap-3">
                   <p className="text-sm text-gray-500">
                     Press Ctrl+Enter to post
                   </p>
                   <button
-                    className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                     onClick={handleSendComment}
                     disabled={!commentData.trim() || commentLoading}
                   >
                     {commentLoading ? (
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center justify-center gap-2">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Posting...
                       </span>
@@ -351,19 +361,19 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                 </div>
               </div>
             ) : (
-              <div className="mb-8 bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle size={32} className="text-blue-600" />
+              <div className="mb-8 bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle size={24} className="text-blue-600 sm:w-7" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
                   Join the conversation
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-sm sm:text-base">
                   Sign in to share your thoughts on this article
                 </p>
                 <button
                   onClick={handleLoginRedirect}
-                  className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
+                  className="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 mx-auto w-full sm:w-auto"
                 >
                   <LogIn size={20} />
                   Sign in to comment
@@ -377,11 +387,11 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                 comments.map((comment) => (
                   <div
                     key={comment._id}
-                    className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
+                    className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
                   >
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden shadow-md">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden shadow-md">
                           {comment.user?.image ? (
                             <img
                               src={comment.user.image}
@@ -389,17 +399,17 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-full h-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm sm:text-base">
                               {comment.user?.firstname?.charAt(0) || "U"}
                             </div>
                           )}
                         </div>
                         <div>
-                          <span className="font-semibold text-gray-900 block">
+                          <span className="font-semibold text-gray-900 block text-sm sm:text-base">
                             {comment.user?.firstname || "Anonymous"}
                           </span>
                           <span className="text-gray-500 text-xs flex items-center gap-1">
-                            <Calendar size={12} />
+                            <Calendar size={10} className="sm:w-5"/>
                             {new Date(comment.createdAt).toLocaleDateString(
                               "en-US",
                               {
@@ -412,7 +422,7 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">
+                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
                       {comment.comment}
                     </p>
                   </div>
@@ -420,13 +430,13 @@ const PostPage = ({ setShowLoginModal , setIsLoggedIn , isLoggedIn }: Props) => 
               ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
                   <MessageCircle
-                    size={48}
-                    className="text-gray-300 mx-auto mb-4"
+                    size={36}
+                    className="text-gray-300 mx-auto mb-4 sm:w-8"
                   />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
                     No comments yet
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 text-sm sm:text-base">
                     {isLoggedIn
                       ? "Be the first to share your thoughts!"
                       : "Sign in to be the first to comment!"}
