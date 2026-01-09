@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv"; 
+import { getAiKey } from "./post";
 
-dotenv.config();
-const GEMINI = process.env.VITE_GEMINI_API as string;
+const GEMINI = await getAiKey() as string
 
 
 const ai = new GoogleGenAI({

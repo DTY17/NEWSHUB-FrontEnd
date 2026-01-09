@@ -330,3 +330,9 @@ export const deleteLoadWatchlist = async (
   console.log(res);
   return res.data.data;
 };
+
+export const getAiKey = async () => {
+  const res = await api.get(`/getkey`);
+  console.log(res);
+  return res.data.key;
+};

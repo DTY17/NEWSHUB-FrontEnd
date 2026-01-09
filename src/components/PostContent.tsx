@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import {
   Eye,
   Calendar,
@@ -7,7 +8,7 @@ import {
   Bookmark,
   ArrowLeft,
   LogIn,
-  ReceiptText
+  ReceiptText,
 } from "lucide-react";
 import { getCommetByAllIDS, getPostID, setComment } from "../services/post";
 import { useParams, useNavigate } from "react-router-dom";
@@ -292,14 +293,20 @@ const PostPage = ({ setShowLoginModal, setIsLoggedIn, isLoggedIn }: Props) => {
           <div className="mt-8 md:mt-20 p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 border-t border-gray-200 bg-linear-to-b from-white to-gray-50">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <ReceiptText size={20}  className="text-blue-600 sm:w-6" />
+                <ReceiptText size={20} className="text-blue-600 sm:w-6" />
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   AI Generated Summary
                 </h2>
               </div>
             </div>
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border text-black border-gray-100 hover:border-blue-200 transition-all duration-200">
-              <p className="text-sm sm:text-base">{ai || "Loading summary..."}</p>
+              {ai ? (
+                <div className="text-sm sm:text-base">
+                  <ReactMarkdown>{ai}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-sm sm:text-base">Loading summary...</p>
+              )}
             </div>
           </div>
 
@@ -409,7 +416,7 @@ const PostPage = ({ setShowLoginModal, setIsLoggedIn, isLoggedIn }: Props) => {
                             {comment.user?.firstname || "Anonymous"}
                           </span>
                           <span className="text-gray-500 text-xs flex items-center gap-1">
-                            <Calendar size={10} className="sm:w-5"/>
+                            <Calendar size={10} className="sm:w-5" />
                             {new Date(comment.createdAt).toLocaleDateString(
                               "en-US",
                               {
