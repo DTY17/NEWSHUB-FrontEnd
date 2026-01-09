@@ -19,7 +19,6 @@ import { AdminEditPost } from "../components/EditPost";
 import AdminLogin from "../components/AdminLogin";
 import Watchlist from "../components/WatchList";
 import { ManageUsers } from "../components/ManageUsers";
-import { AdminUserDetails } from "../components/AdminUserDetails";
 
 const Router = () => {
   const [currentPage, setCurrentPage] = useState<"home" | "about" | "contact">(
