@@ -7,7 +7,8 @@ import {
   X,
   Newspaper,
   CircleUserRound,
-} from "lucide-react";
+  Loader2,
+} from "lucide-react"; // Added Loader2
 import { useNavigate } from "react-router-dom";
 import { getUser, isTokenValid, login, register } from "../services/auth";
 
@@ -39,12 +40,15 @@ export const Header: FC<Props> = ({
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // Login loading state
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [signupError, setSignupError] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false); // Signup loading state
 
   const [email, setEmail] = useState("null");
 
@@ -97,6 +101,7 @@ export const Header: FC<Props> = ({
       localStorage.removeItem("refresh_token");
     }
   }
+  
   useEffect(() => {
     console.log(email);
     getEmail();
@@ -121,6 +126,10 @@ export const Header: FC<Props> = ({
       setLoginError("Password must be at least 6 characters.");
       return;
     }
+    
+    setIsLoggingIn(true);
+    setLoginError("");
+    
     try {
       const result = await login({
         email: loginEmail.trim(),
@@ -148,6 +157,8 @@ export const Header: FC<Props> = ({
     } catch (err) {
       console.error("Login error:", err);
       setLoginError("An error occurred during login. Please try again.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -185,7 +196,13 @@ export const Header: FC<Props> = ({
       setSignupError("Password must be at least 6 characters.");
       return;
     }
+    if (signupPassword !== confirmPassword) {
+      setSignupError("Passwords do not match.");
+      return;
+    }
 
+    setIsSigningUp(true);
+    
     try {
       const result = await register({
         firstName: firstName.trim(),
@@ -193,14 +210,15 @@ export const Header: FC<Props> = ({
         email: signupEmail.trim(),
         password: signupPassword.trim(),
       });
-
-      if (result === true) {
+      console.log(result)
+      if (result === 200) {
         setShowSignupModal(false);
 
         setFirstName("");
         setLastName("");
         setSignupEmail("");
         setSignupPassword("");
+        setConfirmPassword("");
 
         setShowLoginModal(true);
       } else {
@@ -211,6 +229,8 @@ export const Header: FC<Props> = ({
       setSignupError(
         "An error occurred during registration. Please try again."
       );
+    } finally {
+      setIsSigningUp(false);
     }
   };
 
@@ -223,6 +243,8 @@ export const Header: FC<Props> = ({
     setShowSignupModal(false);
     setLoginError("");
     setSignupError("");
+    setIsLoggingIn(false);
+    setIsSigningUp(false);
   };
 
   const handleLogout = () => {
@@ -416,6 +438,7 @@ export const Header: FC<Props> = ({
               onClick={() => setShowLoginModal(false)}
               className="hover:cursor-pointer absolute top-4 right-4 text-gray-600 hover:text-black transition-colors duration-200"
               aria-label="Close login"
+              disabled={isLoggingIn}
             >
               <X size={22} />
             </button>
@@ -438,7 +461,8 @@ export const Header: FC<Props> = ({
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isLoggingIn}
                 />
               </div>
               <div>
@@ -450,7 +474,8 @@ export const Header: FC<Props> = ({
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isLoggingIn}
                 />
               </div>
 
@@ -462,20 +487,29 @@ export const Header: FC<Props> = ({
 
               <button
                 onClick={handleLogin}
-                className="hover:cursor-pointer w-full py-3.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide text-sm border-0 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                disabled={isLoggingIn}
+                className="hover:cursor-pointer w-full py-3.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide text-sm border-0 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                Login
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" size={18} />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
 
             <div className="mt-6 text-sm text-gray-700 text-center">
               Don't have an account?{" "}
               <button
-                className="hover:cursor-pointer text-black font-bold hover:underline"
+                className="hover:cursor-pointer text-black font-bold hover:underline disabled:text-gray-500 disabled:cursor-not-allowed"
                 onClick={() => {
                   setShowLoginModal(false);
                   setShowSignupModal(true);
                 }}
+                disabled={isLoggingIn}
               >
                 Sign up here
               </button>
@@ -497,6 +531,7 @@ export const Header: FC<Props> = ({
               onClick={() => setShowSignupModal(false)}
               className="hover:cursor-pointer absolute top-4 right-4 text-gray-600 hover:text-black transition-colors duration-200"
               aria-label="Close signup"
+              disabled={isSigningUp}
             >
               <X size={22} />
             </button>
@@ -518,7 +553,8 @@ export const Header: FC<Props> = ({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Jane"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSigningUp}
                 />
               </div>
               <div className="sm:col-span-1">
@@ -530,7 +566,8 @@ export const Header: FC<Props> = ({
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Doe"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSigningUp}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -542,7 +579,8 @@ export const Header: FC<Props> = ({
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
                   placeholder="jane.doe@example.com"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSigningUp}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -554,8 +592,38 @@ export const Header: FC<Props> = ({
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSigningUp}
                 />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-2 uppercase tracking-wide">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  className={`w-full px-4 py-3 border-2 rounded-sm focus:ring-2 focus:ring-black focus:border-black outline-none text-gray-900 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed ${
+                    confirmPassword && signupPassword !== confirmPassword
+                      ? "border-red-500 bg-red-50"
+                      : confirmPassword && signupPassword === confirmPassword
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-300"
+                  }`}
+                  disabled={isSigningUp}
+                />
+                {confirmPassword && signupPassword !== confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Passwords do not match
+                  </p>
+                )}
+                {confirmPassword && signupPassword === confirmPassword && (
+                  <p className="text-green-600 text-sm mt-1">
+                    Passwords match ✓
+                  </p>
+                )}
               </div>
             </div>
 
@@ -567,19 +635,28 @@ export const Header: FC<Props> = ({
 
             <button
               onClick={handleSignup}
-              className="hover:cursor-pointer mt-6 w-full py-3.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide text-sm"
+              disabled={isSigningUp}
+              className="hover:cursor-pointer mt-6 w-full py-3.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide text-sm disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Create Account
+              {isSigningUp ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={18} />
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </button>
 
             <div className="mt-6 text-sm text-gray-700 text-center">
               Already have an account?{" "}
               <button
-                className="hover:cursor-pointer text-black font-bold hover:underline"
+                className="hover:cursor-pointer text-black font-bold hover:underline disabled:text-gray-500 disabled:cursor-not-allowed"
                 onClick={() => {
                   setShowSignupModal(false);
                   setShowLoginModal(true);
                 }}
+                disabled={isSigningUp}
               >
                 Log in here
               </button>

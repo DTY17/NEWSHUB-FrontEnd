@@ -48,6 +48,18 @@ export const AdminLayout: React.FC = () => {
                 <Files size={18} className="text-white"/> <span className="ml-2 text-white">Manage Posts</span>
               </NavLink>
               <NavLink
+                to="/admin/manage-user"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2 rounded-lg transition ${
+                    isActive
+                      ? "bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow"
+                      : "bg-linear-to-r from-blue-500 to-purple-500 text-white/90 hover:opacity-90"
+                  }`
+                }
+              >
+                <Settings size={18} className="text-white"/> <span className="ml-2 text-white">User Details</span>
+              </NavLink>
+              <NavLink
                 to="/admin/settings"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-lg transition ${

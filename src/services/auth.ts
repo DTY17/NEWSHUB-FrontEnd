@@ -75,14 +75,18 @@ export const login = async ({ email, password }: LoginProps) => {
   }
 };
 
-export const getUser = async (email: string , token: string) => {
+export const getUser = async (email: string, token: string) => {
   try {
-    const res = await api.post(`user/user-detail/${email}`,{},{
+    const res = await api.post(
+      `user/user-detail/${email}`,
+      {},
+      {
         headers: {
           authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      });
+      }
+    );
     console.log(res);
     return res.data.data;
   } catch (error) {
@@ -112,8 +116,7 @@ export const refreshToken = async (token: string) => {
 
 export const isTokenValid = async (token: string, refresh_token: string) => {
   try {
-    const res = await api.get(
-      `user/valid/${token}`);
+    const res = await api.get(`user/valid/${token}`);
     if (res.data.message === false) {
       console.log("expire");
       const newToken = await refreshToken(refresh_token);
@@ -206,5 +209,24 @@ export const UpdateData = async (
   } catch (error) {
     console.error("Update failed:", error);
     throw error;
+  }
+};
+
+export const getAllUsers = async (token: string) => {
+  try {
+    const res = await api.get(
+      `user/users`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(res);
+    return res.data.users;
+  } catch (error) {
+    console.log(error);
+    return "Error";
   }
 };

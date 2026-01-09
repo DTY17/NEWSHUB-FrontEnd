@@ -18,6 +18,8 @@ import { AdminManage } from "../components/AdminManage";
 import { AdminEditPost } from "../components/EditPost";
 import AdminLogin from "../components/AdminLogin";
 import Watchlist from "../components/WatchList";
+import { ManageUsers } from "../components/ManageUsers";
+import { AdminUserDetails } from "../components/AdminUserDetails";
 
 const Router = () => {
   const [currentPage, setCurrentPage] = useState<"home" | "about" | "contact">(
@@ -100,6 +102,7 @@ const Router = () => {
               path="profile/:email"
               element={<Profile setDP={setDP} dp={dp} />}
             />
+            <Route path="manage-user" element={<ManageUsers />} />
           </Route>
 
           <Route
@@ -116,10 +119,10 @@ const Router = () => {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="add" element={<AdminAddPost />} />
             <Route path="manage" element={<AdminManage />} />
+            <Route path="manage-user" element={<ManageUsers />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="manage/:id" element={<AdminEditPost />} />
           </Route>
-
           <Route path="/admin/login" element={<AdminLogin />} />
         </Routes>
       </div>

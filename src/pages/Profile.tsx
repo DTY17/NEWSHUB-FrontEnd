@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC } from "react";
-import { Camera, Save, UserCircle2 } from "lucide-react";
+import { Camera, Save, UserCircle2, Loader2 } from "lucide-react"; // Added Loader2
 import { useParams } from "react-router-dom";
 import { getUser, UpdateData } from "../services/auth";
 import upload from "../services/Upload";
@@ -22,37 +22,54 @@ const initialProfile: ProfileData = {
 
 interface Props {
   setDP: (p: string) => void;
-  dp: string
+  dp: string;
 }
 
-export const Profile: FC<Props> = ({ setDP , dp }) => {
+export const Profile: FC<Props> = ({ setDP, dp }) => {
   const { email } = useParams();
   const [profile, setProfile] = useState<ProfileData>(initialProfile);
-  const [image_icon,setImage_icon] = useState("");
+  const [image_icon, setImage_icon] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log(image_icon);
     async function loadData() {
-      console.log("Emails :: ",email)
-      console.log(image_icon)
-      const data = await getUser(email as string , localStorage.getItem("token") as string);
-      console.log("data recived",data)
-      const profile_data = {
-        username: data.firstname,
-        email: data.email,
-        firstName: data.firstname,
-        lastName: data.lastname,
-        avatarUrl: data.image != "" ? data.image : "ABC-NEWS/src/assets/user.png",
-      };
-      setProfile(profile_data);
-      console.log(profile_data);
+      setLoading(true);
+      setError(null);
+
+      try {
+        console.log("Emails :: ", email);
+        const data = await getUser(
+          email as string,
+          localStorage.getItem("token") as string
+        );
+        console.log("data received", data);
+        const profile_data = {
+          username: data.firstname,
+          email: data.email,
+          firstName: data.firstname,
+          lastName: data.lastname,
+          avatarUrl:
+            data.image != "" ? data.image : "ABC-NEWS/src/assets/user.png",
+        };
+        setProfile(profile_data);
+        console.log(profile_data);
+      } catch (err) {
+        console.error("Error loading profile data:", err);
+        setError("Failed to load profile data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
     loadData();
-  }, []); // email
+  }, [email]);
 
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const onChange = <K extends keyof ProfileData>(
     key: K,
@@ -61,16 +78,32 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
     setProfile((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAvatarUpload  = async (e:any) => {
-    const file = e.target.files?.[0]; 
-    if (!file) return; 
-    const formData = new FormData(); 
-    formData.append("file", file); 
-    formData.append("upload_preset", "News HUB");
-    const res = await upload(formData)
-    setDP(res.data.secure_url)
-    setImage_icon(res.data.secure_url)
-    console.log(res.data.secure_url)
+  const handleAvatarUpload = async (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "News HUB");
+      const res = await upload(formData);
+      setDP(res.data.secure_url);
+      setImage_icon(res.data.secure_url);
+      setProfile((prev) => ({
+        ...prev,
+        avatarUrl: res.data.secure_url,
+      }));
+      console.log(res.data.secure_url);
+      setSuccess("Profile picture uploaded successfully!");
+    } catch (err) {
+      console.error("Error uploading avatar:", err);
+      setError("Failed to upload profile picture. Please try again.");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleSave = async () => {
@@ -86,24 +119,60 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
       return;
     }
 
+    setSaving(true);
+
     try {
-      onChange("avatarUrl",dp)
-      console.log("profile ",profile)
+      onChange("avatarUrl", dp);
+      console.log("profile ", profile);
       const isUpdated = await UpdateData(
-        profile , 
-        localStorage.getItem("token") as string , 
+        profile,
+        localStorage.getItem("token") as string,
         localStorage.getItem("email") as string
-      ) 
-      if(isUpdated.data === "Updated") {
-        setSaving(true);
+      );
+      console.log("isUpdate : ", isUpdated.message);
+      if (isUpdated.message === "Updated") {
         setSuccess("Profile updated successfully.");
+
+        if (profile.email !== localStorage.getItem("email")) {
+          localStorage.setItem("email", profile.email);
+        }
+      } else {
+        setError("Failed to update profile. Please try again.");
       }
     } catch (e) {
+      console.error("Error saving profile:", e);
       setError("Failed to save profile. Please try again.");
     } finally {
       setSaving(false);
     }
   };
+
+  // Loading state for initial data
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
+          <div className="flex flex-col items-center justify-center">
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full bg-gray-100 animate-pulse"></div>
+              <div className="absolute -bottom-2 -right-2 bg-gray-200 rounded-full p-2 animate-pulse">
+                <Camera size={18} className="text-gray-400" />
+              </div>
+            </div>
+            <div className="mt-6 space-y-4 w-full">
+              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+              <div className="h-10 bg-gray-200 rounded animate-pulse mt-4"></div>
+            </div>
+            <div className="mt-8 flex items-center space-x-2">
+              <Loader2 className="animate-spin text-indigo-600" size={24} />
+              <span className="text-gray-600">Loading profile data...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 ">
@@ -118,8 +187,20 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
 
           <div className="p-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 ">
             <div className="bg-white border rounded-xl p-4 flex flex-col items-center">
-              <div className="relative ">
-                {dp === "" ? (
+              <div className="relative">
+                {uploadingAvatar ? (
+                  <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border">
+                    <div className="flex flex-col items-center">
+                      <Loader2
+                        className="animate-spin text-indigo-600 mb-2"
+                        size={32}
+                      />
+                      <span className="text-xs text-gray-500">
+                        Uploading...
+                      </span>
+                    </div>
+                  </div>
+                ) : dp === "" ? (
                   <img
                     src={dp}
                     alt="Profile preview"
@@ -138,10 +219,18 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                 )}
                 <label
                   htmlFor="avatar"
-                  className="cursor-pointer absolute -bottom-2 -right-2 bg-linear-to-r from-indigo-500 to-purple-600 text-white rounded-full p-2 shadow hover:scale-105 transition"
-                  title="Change profile picture"
+                  className={`cursor-pointer absolute -bottom-2 -right-2 bg-linear-to-r from-indigo-500 to-purple-600 text-white rounded-full p-2 shadow hover:scale-105 transition ${
+                    uploadingAvatar ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  title={
+                    uploadingAvatar ? "Uploading..." : "Change profile picture"
+                  }
                 >
-                  <Camera size={18} />
+                  {uploadingAvatar ? (
+                    <Loader2 className="animate-spin" size={18} />
+                  ) : (
+                    <Camera size={18} />
+                  )}
                 </label>
                 <input
                   id="avatar"
@@ -149,11 +238,18 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                   accept="image/*"
                   className="hidden"
                   onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-3">
                 PNG, JPG, or WebP. Recommended square image.
               </p>
+              {uploadingAvatar && (
+                <div className="mt-2 flex items-center text-xs text-indigo-600">
+                  <Loader2 className="animate-spin mr-1" size={12} />
+                  Uploading image...
+                </div>
+              )}
             </div>
 
             <div className="space-y-6 ">
@@ -170,8 +266,9 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                       type="text"
                       value={profile.firstName}
                       onChange={(e) => onChange("firstName", e.target.value)}
-                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                       placeholder="Jane"
+                      disabled={saving || uploadingAvatar}
                     />
                   </div>
                   <div>
@@ -182,8 +279,9 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                       type="text"
                       value={profile.lastName}
                       onChange={(e) => onChange("lastName", e.target.value)}
-                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                       placeholder="Doe"
+                      disabled={saving || uploadingAvatar}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -194,8 +292,9 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                       type="text"
                       value={profile.username}
                       onChange={(e) => onChange("username", e.target.value)}
-                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                       placeholder="janedoe"
+                      disabled={saving || uploadingAvatar}
                     />
                   </div>
                 </div>
@@ -214,8 +313,9 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
                       type="email"
                       value={profile.email}
                       onChange={(e) => onChange("email", e.target.value)}
-                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                      className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                       placeholder="jane.doe@example.com"
+                      disabled={saving || uploadingAvatar}
                     />
                   </div>
                 </div>
@@ -223,23 +323,38 @@ export const Profile: FC<Props> = ({ setDP , dp }) => {
 
               <div className="flex items-center justify-between">
                 <div className="min-h-6">
-                  {error && <p className="text-red-600 text-sm">{error}</p>}
+                  {error && (
+                    <div className="flex items-center text-red-600 text-sm">
+                      <span>{error}</span>
+                    </div>
+                  )}
                   {success && (
-                    <p className="text-green-600 text-sm">{success}</p>
+                    <div className="flex items-center text-green-600 text-sm">
+                      <span>{success}</span>
+                    </div>
                   )}
                 </div>
                 <button
                   onClick={handleSave}
-                  disabled={saving}
-                  className={`px-5 py-2.5 rounded-lg text-white font-semibold flex items-center gap-2 transition
+                  disabled={saving || uploadingAvatar}
+                  className={`px-5 py-2.5 rounded-lg text-white font-semibold flex items-center gap-2 transition min-w-[140px] justify-center
                     ${
-                      saving
+                      saving || uploadingAvatar
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-linear-to-r from-indigo-500 to-purple-600 hover:scale-[1.02] hover:shadow-lg"
                     }`}
                 >
-                  <Save size={18} />
-                  {saving ? "Saving..." : "Save changes"}
+                  {saving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} />
+                      Save changes
+                    </>
+                  )}
                 </button>
               </div>
             </div>
